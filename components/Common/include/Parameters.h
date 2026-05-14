@@ -11,8 +11,8 @@ enum PRIMARY_CONTROLLER_E { PRO = 0x03, NES = 0x09, SNES = 0x0B, N64 = 0x0C };
 // ************ From here change values to configure the controls ************
 // Begin Parameters Controller Type (Change *Joystick PRO/N64)
 
-#define PRIMARY_CONTROLLER      N64             // Values: Enum -> PRIMARY_CONTROLLER_E
-#define JOYSTICK_TYPE           N64_J           // VALUES: Enum -> JOYSTICK_TYPE_E
+#define PRIMARY_CONTROLLER      PRO             // Values: Enum -> PRIMARY_CONTROLLER_E
+#define JOYSTICK_TYPE           PRO_J           // VALUES: Enum -> JOYSTICK_TYPE_E
 
 //NO CHANGE
 #if PRIMARY_CONTROLLER == N64

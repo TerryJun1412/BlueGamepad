@@ -32,8 +32,8 @@
 #define N64_JOYSTICK_DEADZONE_MIN    -4
 
 #define NUMBER_SAMPLES          1
-#define NUM_OF_JOYSTICKS        2
-#define NUM_OF_TRIGGERS         2
+#define NUM_OF_JOYSTICKS        1
+#define NUM_OF_TRIGGERS         0
 
 
 struct joysticks_s
@@ -68,9 +68,7 @@ struct joystick_64_s
     int16_t previous_state_pot_y;
 };
 
-extern joystick_64_s joystick64;
 extern joysticks_s joysticks[NUM_OF_JOYSTICKS];
-extern triggers_s triggers[NUM_OF_TRIGGERS];
 
 uint16_t read_joystick_retroblue(adc1_channel_t adc_channel, bool reverse_axis);
 uint16_t read_joystick_n64_retroblue(int pot_value, bool reverse_axis);

@@ -1,7 +1,7 @@
 {
   "C_Cpp.intelliSenseEngine": "Tag Parser",
   "idf.flashType": "UART",
-  "idf.portWin": "COM3",
+  "idf.portWin": "COM5",
   "idf.adapterTargetName": "esp32",
   "files.associations": {
     "*.inc": "c",
@@ -24,5 +24,6 @@
   "idf.openOcdConfigs": [
     "interface/ftdi/esp32_devkitj_v1.cfg",
     "target/esp32.cfg"
-  ]
+  ],
+  "idf.currentSetup": "C:/Espressif/frameworks/esp-idf-v4.4.8/"
 }
