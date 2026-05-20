@@ -7,15 +7,67 @@ void button_task()
 {
     regread = REG_READ(GPIO_IN_REG) & PIN_BIT_MASK;
 
-    g_button_data.b_right  = read_button(regread, GPIO_BTN_CIRCLE);
-    g_button_data.b_down   = read_button(regread, GPIO_BTN_CROSS);
-    g_button_data.b_up     = read_button(regread, GPIO_BTN_SQUARE);
-    g_button_data.b_left   = false;
-    g_button_data.t_l      = read_button(regread, GPIO_BTN_L1);
-    g_button_data.t_zl     = read_button(regread, GPIO_BTN_L2);
-    g_button_data.t_r      = false;
-    g_button_data.t_zr     = false;
-    g_button_data.b_start  = read_button(regread, GPIO_BTN_START);
+    // g_button_data.b_right  = read_button(regread, GPIO_BTN_CIRCLE);
+    // g_button_data.b_down   = read_button(regread, GPIO_BTN_CROSS);
+    // g_button_data.b_up     = false;
+    // g_button_data.b_left   = read_button(regread, GPIO_BTN_SQUARE);
+    // g_button_data.t_l      = read_button(regread, GPIO_BTN_L1);
+    // g_button_data.t_zl     = read_button(regread, GPIO_BTN_L2);
+    // g_button_data.t_r      = false;
+    // g_button_data.t_zr     = false;
+    // g_button_data.b_start  = read_button(regread, GPIO_BTN_START);
+    // g_button_data.b_select = false;
+    // g_button_data.b_home   = read_button(regread, GPIO_BTN_HOME);
+    // g_button_data.b_capture= false;
+    // g_button_data.sb_right = read_button(regread, GPIO_BTN_R3);
+    // g_button_data.sb_left  = false;
+    // g_button_data.d_up     = false;
+    // g_button_data.d_down   = false;
+    // g_button_data.d_left   = false;
+    // g_button_data.d_right  = false;
+
+    static bool modifier_active = false;
+    static bool start_prev = false;
+    bool start_held = read_button(regread, GPIO_BTN_START);
+
+    // Toggle modifier on + button press (not hold)
+    if (start_held && !start_prev)
+    {
+        modifier_active = !modifier_active;
+    }
+    start_prev = start_held;
+
+    bool circle = read_button(regread, GPIO_BTN_CIRCLE);
+    bool cross  = read_button(regread, GPIO_BTN_CROSS);
+    bool square = read_button(regread, GPIO_BTN_SQUARE);
+    bool l1     = read_button(regread, GPIO_BTN_L1);
+    bool l2     = read_button(regread, GPIO_BTN_L2);
+
+    if (!modifier_active)
+    {
+        g_button_data.b_right  = circle;
+        g_button_data.b_down   = cross;
+        g_button_data.b_left   = square;
+        g_button_data.b_up     = false;
+        g_button_data.t_l      = l1;
+        g_button_data.t_zl     = l2;
+        g_button_data.t_r      = false;
+        g_button_data.t_zr     = false;
+        g_button_data.b_start  = start_held;
+    }
+    else
+    {
+        g_button_data.b_right  = false;
+        g_button_data.b_down   = false;
+        g_button_data.b_left   = false;
+        g_button_data.b_up     = square;   // X = Y in modifier mode
+        g_button_data.t_l      = l1;
+        g_button_data.t_zl     = l2;
+        g_button_data.t_r      = circle;   // R = A in modifier mode
+        g_button_data.t_zr     = cross;    // ZR = B in modifier mode
+        g_button_data.b_start  = false;
+    }
+
     g_button_data.b_select = false;
     g_button_data.b_home   = read_button(regread, GPIO_BTN_HOME);
     g_button_data.b_capture= false;

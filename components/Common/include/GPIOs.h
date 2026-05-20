@@ -17,6 +17,7 @@
 #define GPIO_BTN_SYNC       GPIO_NUM_15     // Sync
 #define GPIO_BTN_HOME       GPIO_NUM_16     // Home
 #define GPIO_BTN_SQUARE     GPIO_NUM_17     // Y
+#define GPIO_BTN_TRIANGLE   GPIO_NUM_4      // X (Switch)
 #define GPIO_BTN_L1         GPIO_NUM_25     // L
 #define GPIO_BTN_L2         GPIO_NUM_26     // ZL
 
