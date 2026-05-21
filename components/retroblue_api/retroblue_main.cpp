@@ -28,7 +28,7 @@ void button_task()
 
     static bool modifier_active = false;
     static bool start_prev = false;
-    bool start_held = read_button(regread, GPIO_BTN_START);
+    bool start_held = read_button(regread, GPIO_BTN_TRIANGLE);
 
     // Toggle modifier on + button press (not hold)
     if (start_held && !start_prev)
@@ -42,6 +42,7 @@ void button_task()
     bool square = read_button(regread, GPIO_BTN_SQUARE);
     bool l1     = read_button(regread, GPIO_BTN_L1);
     bool l2     = read_button(regread, GPIO_BTN_L2);
+    bool start     = read_button(regread, GPIO_BTN_START);
 
     if (!modifier_active)
     {
@@ -53,19 +54,28 @@ void button_task()
         g_button_data.t_zl     = l2;
         g_button_data.t_r      = false;
         g_button_data.t_zr     = false;
-        g_button_data.b_start  = start_held;
+        g_button_data.b_start  = start;
     }
     else
     {
-        g_button_data.b_right  = false;
-        g_button_data.b_down   = false;
+        g_button_data.b_right  = circle;   // A stays A
+        g_button_data.b_down   = cross;    // B stays B
         g_button_data.b_left   = false;
         g_button_data.b_up     = square;   // X = Y in modifier mode
-        g_button_data.t_l      = l1;
-        g_button_data.t_zl     = l2;
-        g_button_data.t_r      = circle;   // R = A in modifier mode
-        g_button_data.t_zr     = cross;    // ZR = B in modifier mode
+        g_button_data.t_l      = false;
+        g_button_data.t_zl     = false;
+        g_button_data.t_r      = l1;       // R = L in modifier mode
+        g_button_data.t_zr     = l2;       // ZR = ZL in modifier mode
         g_button_data.b_start  = false;
+
+        static bool soft_prev = false;
+        bool soft_held = square || l1 || l2;
+        if (!soft_held && soft_prev)
+        {
+            modifier_active = false;
+        }
+        soft_prev = soft_held;
+
     }
 
     g_button_data.b_select = false;

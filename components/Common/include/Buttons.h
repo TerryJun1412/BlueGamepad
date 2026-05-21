@@ -28,8 +28,8 @@
 // Input pin bitmask - only the 9 active digital input pins
 #define GPIO_BITMASK_BUTTONS \
     (1ULL<<GPIO_BTN_R3)     | (1ULL<<GPIO_BTN_CIRCLE) | (1ULL<<GPIO_BTN_CROSS)  | \
-    (1ULL<<GPIO_BTN_START)  | (1ULL<<GPIO_BTN_SYNC)   | (1ULL<<GPIO_BTN_HOME)   | \
-    (1ULL<<GPIO_BTN_SQUARE) | (1ULL<<GPIO_BTN_L1)     | (1ULL<<GPIO_BTN_L2)
+    (1ULL<<GPIO_BTN_START)  | (1ULL<<GPIO_BTN_HOME)   | (1ULL<<GPIO_BTN_SQUARE) | \
+    (1ULL<<GPIO_BTN_L1)     | (1ULL<<GPIO_BTN_L2)     | (1ULL<<GPIO_BTN_TRIANGLE)
 
 #define GPIO_BITMASK_LED   (1ULL<<GPIO_LED_SYNC_BLE)
 
