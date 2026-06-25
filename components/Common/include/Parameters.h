@@ -23,7 +23,7 @@ enum PRIMARY_CONTROLLER_E { PRO = 0x03, NES = 0x09, SNES = 0x0B, N64 = 0x0C };
 
 // Joysticks Switch
 #define RBS_REVERSE_AXIS_LX     false
-#define RBS_REVERSE_AXIS_LY     true
+#define RBS_REVERSE_AXIS_LY     false
 #define RBS_REVERSE_AXIS_RX     true
 #define RBS_REVERSE_AXIS_RY     false
 // Joysticks Switch N64

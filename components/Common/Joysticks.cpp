@@ -1,4 +1,8 @@
 #include "Joysticks.h"
+// --------------------------------------------------------------
+#include "pmw3360.h"
+#include <cstring>
+//------------------------
 
 uint32_t map(uint32_t x, uint32_t in_min, uint32_t in_max, uint32_t out_min, uint32_t out_max)
 {
@@ -92,3 +96,68 @@ int16_t read_trigger(adc1_channel_t adc_channel, bool reverse_trigger)
             return raw;
     }
 }
+// -----------------------------------------------------------------
+
+pmw_joystick_s pmw_joystick;
+
+void pmw_joystick_init()
+{
+    strncpy(pmw_joystick.name, "PMW_JOY", 12);
+    pmw_joystick.current_state_axis_x  = 0;
+    pmw_joystick.current_state_axis_y  = 0;
+    pmw_joystick.previous_state_axis_x = 0;
+    pmw_joystick.previous_state_axis_y = 0;
+
+    pmw3360_init();
+}
+
+void pmw_joystick_update()
+{
+    pmw3360_motion_t motion;
+    pmw3360_read_motion(&motion);
+
+    // only process if motion flag set
+    if (!(motion.motion & 0x80)) return;
+
+    float dx = (float)motion.delta_x;
+    float dy = (float)motion.delta_y;
+
+    if (dx > -PMW_DEADZONE && dx < PMW_DEADZONE) dx = 0;
+    if (dy > -PMW_DEADZONE && dy < PMW_DEADZONE) dy = 0;
+
+    pmw_joystick.previous_state_axis_x = pmw_joystick.current_state_axis_x;
+    pmw_joystick.previous_state_axis_y = pmw_joystick.current_state_axis_y;
+
+    pmw_joystick.current_state_axis_x += dx * PMW_SENSITIVITY;
+    pmw_joystick.current_state_axis_y += dy * PMW_SENSITIVITY;
+
+    pmw_joystick.current_state_axis_x = constrain(
+        pmw_joystick.current_state_axis_x, PMW_AXIS_MIN, PMW_AXIS_MAX);
+    pmw_joystick.current_state_axis_y = constrain(
+        pmw_joystick.current_state_axis_y, PMW_AXIS_MIN, PMW_AXIS_MAX);
+
+    if (abs(pmw_joystick.current_state_axis_x) < PMW_EDGE_ZONE)
+        pmw_joystick.current_state_axis_x *= PMW_DECAY;
+
+    if (abs(pmw_joystick.current_state_axis_y) < PMW_EDGE_ZONE)
+        pmw_joystick.current_state_axis_y *= PMW_DECAY;
+}
+
+void pmw_joystick_recenter()
+{
+    pmw_joystick.current_state_axis_x  = 0;
+    pmw_joystick.current_state_axis_y  = 0;
+    pmw_joystick.previous_state_axis_x = 0;
+    pmw_joystick.previous_state_axis_y = 0;
+}
+
+int16_t pmw_get_axis_x()
+{
+    return (int16_t)pmw_joystick.current_state_axis_x;
+}
+
+int16_t pmw_get_axis_y()
+{
+    return (int16_t)pmw_joystick.current_state_axis_y;
+}
+// --------------------------------------------------------------

@@ -10,7 +10,7 @@
 #define ANALOG_MIN              0
 #define ANALOG_MAX              4095
 #define ANALOG_CENTER           2048
-#define ANALOG_DEADZONE_FAC     25 // Factor
+#define ANALOG_DEADZONE_FAC     100 // Factor
 #define ANALOG_DEADZONE_MIN     (ANALOG_CENTER - ANALOG_DEADZONE_FAC)    
 #define ANALOG_DEADZONE_MAX     (ANALOG_CENTER + ANALOG_DEADZONE_FAC)
 
@@ -31,7 +31,7 @@
 #define N64_JOYSTICK_DEADZONE_MAX    4
 #define N64_JOYSTICK_DEADZONE_MIN    -4
 
-#define NUMBER_SAMPLES          1
+#define NUMBER_SAMPLES          8
 #define NUM_OF_JOYSTICKS        1
 #define NUM_OF_TRIGGERS         0
 
@@ -76,5 +76,45 @@ int16_t read_joystick(adc1_channel_t adc_channel, bool reverse_axis);
 int16_t read_joystick_n64(int pot_value, bool reverse_axis);
 bool read_trigger_button(adc1_channel_t adc_channel, bool reverse_trigger);
 int16_t read_trigger(adc1_channel_t adc_channel, bool reverse_trigger);
+
+// optical sensor
+// ADD alongside MPU defines
+#define PMW_SENSITIVITY     0.05f
+#define PMW_DECAY           0.85f
+#define PMW_DEADZONE        2.0f
+#define PMW_EDGE_ZONE       100
+#define PMW_AXIS_MIN       -127
+#define PMW_AXIS_MAX        127
+
+// ADD near the top with your other defines
+// replaces Arduino's constrain for ESP-IDF
+#ifndef constrain
+#define constrain(val, lo, hi) ((val) < (lo) ? (lo) : ((val) > (hi) ? (hi) : (val)))
+#endif
+
+static inline int32_t map_i(int32_t x, int32_t in_min, int32_t in_max, int32_t out_min, int32_t out_max)
+{
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+// ADD alongside mpu_joystick_s struct
+struct pmw_joystick_s
+{
+    char name[12];
+    float current_state_axis_x;
+    float previous_state_axis_x;
+    float current_state_axis_y;
+    float previous_state_axis_y;
+};
+
+// ADD alongside mpu extern
+extern pmw_joystick_s pmw_joystick;
+
+// ADD alongside MPU function declarations
+void    pmw_joystick_init();
+void    pmw_joystick_update();
+void    pmw_joystick_recenter();
+int16_t pmw_get_axis_x();
+int16_t pmw_get_axis_y();
 
 #endif

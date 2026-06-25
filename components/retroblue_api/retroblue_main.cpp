@@ -44,6 +44,14 @@ void button_task()
     bool l2     = read_button(regread, GPIO_BTN_L2);
     bool start     = read_button(regread, GPIO_BTN_START);
 
+    // If a non-soft-toggle button is pressed while modifier is active (e.g. an
+    // accidental toggle press), cancel the modifier so subsequent presses of
+    // circle/l1/l2 read normally instead of their modified mapping.
+    if (modifier_active && (square || cross || start))
+    {
+        modifier_active = false;
+    }
+
     if (!modifier_active)
     {
         g_button_data.b_right  = circle;
@@ -58,10 +66,10 @@ void button_task()
     }
     else
     {
-        g_button_data.b_right  = circle;   // A stays A
+        g_button_data.b_right  = false;
         g_button_data.b_down   = cross;    // B stays B
-        g_button_data.b_left   = false;
-        g_button_data.b_up     = square;   // X = Y in modifier mode
+        g_button_data.b_left   = square;   // Y stays Y
+        g_button_data.b_up     = circle;   // X = A in modifier mode
         g_button_data.t_l      = false;
         g_button_data.t_zl     = false;
         g_button_data.t_r      = l1;       // R = L in modifier mode
@@ -69,7 +77,7 @@ void button_task()
         g_button_data.b_start  = false;
 
         static bool soft_prev = false;
-        bool soft_held = square || l1 || l2;
+        bool soft_held = circle || l1 || l2;
         if (!soft_held && soft_prev)
         {
             modifier_active = false;
@@ -93,16 +101,25 @@ void button_task()
 
 void stick_task()
 {
-    g_stick_data.lsx = ANALOG_CENTER;
-    g_stick_data.lsy = ANALOG_CENTER;
+    g_stick_data.lsx = read_joystick_retroblue(ADC_STICK_RY, RBS_REVERSE_AXIS_LX); // D35 tracks left/right motion
+    g_stick_data.lsy = read_joystick_retroblue(ADC_STICK_RX, RBS_REVERSE_AXIS_LY); // D34 tracks up/down motion
     g_stick_data.rsx = read_joystick_retroblue(ADC_STICK_RX, RBS_REVERSE_AXIS_RX);
     g_stick_data.rsy = read_joystick_retroblue(ADC_STICK_RY, RBS_REVERSE_AXIS_RY);
+
+    pmw_joystick_update();
+    g_stick_data.rsx = (uint16_t)map_i(
+        pmw_get_axis_x(), PMW_AXIS_MIN, PMW_AXIS_MAX, ANALOG_MIN, ANALOG_MAX);
+    g_stick_data.rsy = (uint16_t)map_i(
+        pmw_get_axis_y(), PMW_AXIS_MIN, PMW_AXIS_MAX, ANALOG_MIN, ANALOG_MAX);
 }
 
 void retroblue_init()
 {
     setup_gpios();
     initFlashBleGamepad();
+
+    // ADD — init PMW before registering callbacks
+    pmw_joystick_init();
 
     rb_register_button_callback(button_task);
     rb_register_stick_callback(stick_task);

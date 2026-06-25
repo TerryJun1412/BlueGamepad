@@ -25,5 +25,14 @@
     "interface/ftdi/esp32_devkitj_v1.cfg",
     "target/esp32.cfg"
   ],
-  "idf.currentSetup": "C:/Espressif/frameworks/esp-idf-v4.4.8/"
+  "idf.currentSetup": "C:/Espressif/frameworks/esp-idf-v4.4.8/",
+  "idf.port": "/dev/tty.usbserial-0001",
+  "idf.espIdfPath": "/Users/terryjunarta/esp/esp-idf",
+  "idf.pythonBinPath": "/Users/terryjunarta/.espressif/python_env/idf4.4_py3.11_env/bin/python",
+  "idf.toolsPath": "/Users/terryjunarta/.espressif",
+  "idf.customExtraPaths": "/Users/terryjunarta/.espressif/tools/xtensa-esp32-elf/esp-2021r2-8.4.0/xtensa-esp32-elf/bin:/Users/terryjunarta/.espressif/tools/xtensa-esp32s2-elf/esp-2021r2-8.4.0/xtensa-esp32s2-elf/bin:/Users/terryjunarta/.espressif/tools/xtensa-esp32s3-elf/esp-2021r2-8.4.0/xtensa-esp32s3-elf/bin:/Users/terryjunarta/.espressif/tools/riscv32-esp-elf/esp-2021r2-8.4.0/riscv32-esp-elf/bin:/Users/terryjunarta/.espressif/tools/esp32ulp-elf/2.28.51-esp-20191205/esp32ulp-elf-binutils/bin:/Users/terryjunarta/.espressif/tools/esp32s2ulp-elf/2.28.51-esp-20191205/esp32s2ulp-elf-binutils/bin:/Users/terryjunarta/.espressif/tools/cmake/3.20.3/CMake.app/Contents/bin:/Users/terryjunarta/.espressif/tools/openocd-esp32/v0.11.0-esp32-20211220/openocd-esp32/bin:/Users/terryjunarta/.espressif/tools/ninja/1.10.2",
+  "idf.customExtraVars": {
+    "OPENOCD_SCRIPTS": "/Users/terryjunarta/.espressif/tools/openocd-esp32/v0.11.0-esp32-20211220/openocd-esp32/share/openocd/scripts"
+  },
+  "idf.gitPath": "git"
 }
