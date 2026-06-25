@@ -118,7 +118,7 @@ void retroblue_init()
     setup_gpios();
     initFlashBleGamepad();
 
-    // ADD — init PMW before registering callbacks
+    // ADD  init PMW before registering callbacks
     pmw_joystick_init();
 
     rb_register_button_callback(button_task);

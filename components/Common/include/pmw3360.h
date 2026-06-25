@@ -4,11 +4,10 @@
 #include "driver/spi_master.h"
 #include "driver/gpio.h"
 
-// SPI Pins — change to match your wiring
 #define PMW3360_MOSI    GPIO_NUM_23
 #define PMW3360_MISO    GPIO_NUM_19
 #define PMW3360_SCK     GPIO_NUM_18
-#define PMW3360_CS      GPIO_NUM_15
+#define PMW3360_CS      GPIO_NUM_27
 
 // Registers
 #define REG_MOTION          0x02

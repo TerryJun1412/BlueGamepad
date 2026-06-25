@@ -7,7 +7,6 @@
 static const char *TAG = "PMW3360";
 spi_device_handle_t pmw3360_spi;
 
-// ── CS helpers ────────────────────────────────────────────
 static inline void cs_low()
 {
     gpio_set_level(PMW3360_CS, 0);
@@ -20,7 +19,6 @@ static inline void cs_high()
     gpio_set_level(PMW3360_CS, 1);
 }
 
-// ── Write ─────────────────────────────────────────────────
 void pmw3360_write(uint8_t reg, uint8_t data)
 {
     uint8_t buf[2] = { (uint8_t)(reg | 0x80), data };
@@ -35,26 +33,29 @@ void pmw3360_write(uint8_t reg, uint8_t data)
     esp_rom_delay_us(180);
 }
 
-// ── Read ──────────────────────────────────────────────────
 uint8_t pmw3360_read(uint8_t reg)
 {
-    uint8_t tx[2] = { (uint8_t)(reg & 0x7F), 0x00 };
-    uint8_t rx[2] = { 0x00, 0x00 };
+    uint8_t addr = reg & 0x7F;
+    uint8_t data = 0x00;
 
-    spi_transaction_t t = {};
-    t.length    = 16;
-    t.tx_buffer = tx;
-    t.rx_buffer = rx;
+    spi_transaction_t t_addr = {};
+    t_addr.length    = 8;
+    t_addr.tx_buffer = &addr;
+
+    spi_transaction_t t_data = {};
+    t_data.length    = 8;
+    t_data.rx_buffer = &data;
 
     cs_low();
-    spi_device_transmit(pmw3360_spi, &t);
+    spi_device_transmit(pmw3360_spi, &t_addr);
+    esp_rom_delay_us(100); // tSRAD: required gap between address and data phases
+    spi_device_transmit(pmw3360_spi, &t_data);
     cs_high();
-    esp_rom_delay_us(160);
+    esp_rom_delay_us(19);
 
-    return rx[1];
+    return data;
 }
 
-// ── Motion Burst Read ─────────────────────────────────────
 void pmw3360_read_motion(pmw3360_motion_t *motion)
 {
     uint8_t buf[6] = { 0 };
@@ -86,7 +87,6 @@ void pmw3360_read_motion(pmw3360_motion_t *motion)
     motion->delta_y = (int16_t)((buf[5] << 8) | buf[4]);
 }
 
-// ── Set CPI ───────────────────────────────────────────────
 void pmw3360_set_cpi(uint16_t cpi)
 {
     if (cpi < 100)   cpi = 100;
@@ -94,7 +94,6 @@ void pmw3360_set_cpi(uint16_t cpi)
     pmw3360_write(REG_CONFIG1, (cpi / 100) - 1);
 }
 
-// ── Init ──────────────────────────────────────────────────
 void pmw3360_init()
 {
     // CS pin
@@ -112,7 +111,7 @@ void pmw3360_init()
     bus.sclk_io_num   = PMW3360_SCK;
     bus.quadwp_io_num = -1;
     bus.quadhd_io_num = -1;
-    spi_bus_initialize(VSPI_HOST, &bus, 1);
+    ESP_ERROR_CHECK(spi_bus_initialize(VSPI_HOST, &bus, 1));
 
     // SPI device
     spi_device_interface_config_t dev = {};
@@ -120,7 +119,7 @@ void pmw3360_init()
     dev.mode           = 3;         // SPI mode 3
     dev.spics_io_num   = -1;        // manual CS
     dev.queue_size     = 1;
-    spi_bus_add_device(VSPI_HOST, &dev, &pmw3360_spi);
+    ESP_ERROR_CHECK(spi_bus_add_device(VSPI_HOST, &dev, &pmw3360_spi));
 
     // power up sequence
     cs_high();
