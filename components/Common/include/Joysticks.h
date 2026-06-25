@@ -10,7 +10,7 @@
 #define ANALOG_MIN              0
 #define ANALOG_MAX              4095
 #define ANALOG_CENTER           2048
-#define ANALOG_DEADZONE_FAC     25 // Factor
+#define ANALOG_DEADZONE_FAC     100 // Factor
 #define ANALOG_DEADZONE_MIN     (ANALOG_CENTER - ANALOG_DEADZONE_FAC)    
 #define ANALOG_DEADZONE_MAX     (ANALOG_CENTER + ANALOG_DEADZONE_FAC)
 
@@ -31,7 +31,7 @@
 #define N64_JOYSTICK_DEADZONE_MAX    4
 #define N64_JOYSTICK_DEADZONE_MIN    -4
 
-#define NUMBER_SAMPLES          1
+#define NUMBER_SAMPLES          8
 #define NUM_OF_JOYSTICKS        1
 #define NUM_OF_TRIGGERS         0
 
