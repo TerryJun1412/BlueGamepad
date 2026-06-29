@@ -103,8 +103,8 @@ void stick_task()
 {
     g_stick_data.lsx = read_joystick_retroblue(ADC_STICK_RY, RBS_REVERSE_AXIS_LX); // D35 tracks left/right motion
     g_stick_data.lsy = read_joystick_retroblue(ADC_STICK_RX, RBS_REVERSE_AXIS_LY); // D34 tracks up/down motion
-    g_stick_data.rsx = read_joystick_retroblue(ADC_STICK_RX, RBS_REVERSE_AXIS_RX);
-    g_stick_data.rsy = read_joystick_retroblue(ADC_STICK_RY, RBS_REVERSE_AXIS_RY);
+    // g_stick_data.rsx = read_joystick_retroblue(ADC_STICK_RX, RBS_REVERSE_AXIS_RX);
+    // g_stick_data.rsy = read_joystick_retroblue(ADC_STICK_RY, RBS_REVERSE_AXIS_RY);
 
     pmw_joystick_update();
     g_stick_data.rsx = (uint16_t)map_i(

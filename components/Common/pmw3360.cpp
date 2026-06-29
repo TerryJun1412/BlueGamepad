@@ -93,29 +93,26 @@ void pmw3360_read_motion(pmw3360_motion_t *motion)
 
     motion->motion  = buf[0];
     // X — low byte first then high byte
-    int16_t xl = buf[2];
-    int16_t xh = buf[3];
+    int16_t xl = buf[1];
+    int16_t xh = buf[2];
     motion->delta_x = (int16_t)((xh << 8) | xl);
 
     // Y — low byte first then high byte  
-    int16_t yl = buf[4];
-    int16_t yh = buf[5];
+    int16_t yl = buf[3];
+    int16_t yh = buf[4];
     motion->delta_y = (int16_t)((yh << 8) | yl);
 
-    // ESP_LOGI(TAG, "motion=0x%02X dx=%d dy=%d xl=%02X xh=%02X yl=%02X yh=%02X",
-    //     motion->motion,
-    //     motion->delta_x,
-    //     motion->delta_y,
-    //     (uint8_t)xl, (uint8_t)xh,
-    //     (uint8_t)yl, (uint8_t)yh);
+    ESP_LOGI(TAG, "motion=0x%02X dx=%d dy=%d xl=%02X xh=%02X yl=%02X yh=%02X",
+        motion->motion,
+        motion->delta_x,
+        motion->delta_y,
+        (uint8_t)xl, (uint8_t)xh,
+        (uint8_t)yl, (uint8_t)yh);
     // static int log_counter = 0;
-    // if (++log_counter >= 20)
+    // if (++log_counter >= 50)
     // {
     //     log_counter = 0;
-    //     ESP_LOGI(TAG, "RAW: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
-    //         buf[0], buf[1], buf[2],  buf[3],
-    //         buf[4], buf[5], buf[6],  buf[7],
-    //         buf[8], buf[9], buf[10], buf[11]);
+    //     ESP_LOGI(TAG, "Y bytes: L=0x%02X, H=0x%02X", buf[4], buf[5]);
     // }
 }
 
@@ -124,6 +121,13 @@ void pmw3360_set_cpi(uint16_t cpi)
     if (cpi < 100)   cpi = 100;
     if (cpi > 12000) cpi = 12000;
     pmw3360_write(REG_CONFIG1, (cpi / 100) - 1);
+}
+
+void pmw3360_start_burst()
+{
+    ESP_LOGI(TAG, "Starting burst mode...");
+    pmw3360_write(REG_MOTION_BURST, 0x00);
+    vTaskDelay(pdMS_TO_TICKS(1));
 }
 
 // ── NEW: SROM Upload Function ──────────────────────────────
@@ -231,6 +235,9 @@ void pmw3360_init()
 
     // ── Set CPI ──────────────────────────────────────────
     pmw3360_set_cpi(3200);
+
+     // ── START BURST MODE ──────────────────────────────────
+    pmw3360_start_burst();
     
     ESP_LOGI(TAG, "PMW3360 ready");
 }

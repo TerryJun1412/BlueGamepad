@@ -133,6 +133,13 @@ void pmw_joystick_update()
         vTaskDelay(1);   // shorter than joystick's 5ms — sensor needs fast polling
     }
 
+    // ESP_LOGI("PMW_UPDATE", "motion=%d acc_x=%d acc_y=%d joy_x=%.2f joy_y=%.2f",
+    //     motion_detected,
+    //     acc_x,
+    //     acc_y,
+    //     pmw_joystick.current_state_axis_x,
+    //     pmw_joystick.current_state_axis_y);
+
     if (!motion_detected) return;
 
     float dx = (float)acc_x;
