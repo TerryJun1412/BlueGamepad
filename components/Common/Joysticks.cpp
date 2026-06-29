@@ -113,14 +113,30 @@ void pmw_joystick_init()
 
 void pmw_joystick_update()
 {
-    pmw3360_motion_t motion;
-    pmw3360_read_motion(&motion);
+   int16_t acc_x = 0;
+    int16_t acc_y = 0;
+    uint8_t motion_detected = 0;
 
-    // only process if motion flag set
-    if (!(motion.motion & 0x80)) return;
+    // sample over a window — mirrors NUMBER_SAMPLES pattern
+    for (int i = 0; i < NUMBER_SAMPLES; i++)
+    {
+        pmw3360_motion_t motion;
+        pmw3360_read_motion(&motion);
 
-    float dx = (float)motion.delta_x;
-    float dy = (float)motion.delta_y;
+        if (motion.motion & 0x80)
+        {
+            acc_x += motion.delta_x;
+            acc_y += motion.delta_y;
+            motion_detected = 1;
+        }
+
+        vTaskDelay(1);   // shorter than joystick's 5ms — sensor needs fast polling
+    }
+
+    if (!motion_detected) return;
+
+    float dx = (float)acc_x;
+    float dy = (float)acc_y;
 
     if (dx > -PMW_DEADZONE && dx < PMW_DEADZONE) dx = 0;
     if (dy > -PMW_DEADZONE && dy < PMW_DEADZONE) dy = 0;
@@ -138,7 +154,6 @@ void pmw_joystick_update()
 
     if (abs(pmw_joystick.current_state_axis_x) < PMW_EDGE_ZONE)
         pmw_joystick.current_state_axis_x *= PMW_DECAY;
-
     if (abs(pmw_joystick.current_state_axis_y) < PMW_EDGE_ZONE)
         pmw_joystick.current_state_axis_y *= PMW_DECAY;
 }

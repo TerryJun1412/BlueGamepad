@@ -18,7 +18,11 @@
 #define REG_POWER_UP_RESET  0x3A
 #define REG_MOTION_BURST    0x50
 #define REG_PRODUCT_ID      0x00
-#define REG_CONFIG1         0x4F
+#define REG_CONFIG1         0x0F
+#define REG_CONFIG2         0x10
+#define REG_SROM_ENABLE     0x13
+#define REG_SROM_ID         0x2A
+#define REG_SROM_LOAD_BURST 0x62
 
 typedef struct {
     int16_t delta_x;
