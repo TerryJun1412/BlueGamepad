@@ -9,6 +9,10 @@
 #define PMW3360_SCK     GPIO_NUM_18
 #define PMW3360_CS      GPIO_NUM_27
 
+// #define PMW3360_DEADZONE 10      // Counts below this are ignored
+// #define PMW3360_DECAY_FACTOR 2   // Reduce small movements by this factor
+// #define PMW3360_MAX_MOVEMENT 127 // Clamp to this value
+
 // Registers
 #define REG_MOTION          0x02
 #define REG_DELTA_X_L       0x03

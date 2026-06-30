@@ -82,7 +82,7 @@ int16_t read_trigger(adc1_channel_t adc_channel, bool reverse_trigger);
 #define PMW_SENSITIVITY     0.05f
 #define PMW_DECAY           0.85f
 #define PMW_DEADZONE        2.0f
-#define PMW_EDGE_ZONE       100
+#define PMW_EDGE_ZONE       127
 #define PMW_AXIS_MIN       -127
 #define PMW_AXIS_MAX        127
 

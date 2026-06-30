@@ -64,6 +64,8 @@ void pmw3360_read_motion(pmw3360_motion_t *motion)
 {
     uint8_t buf[12] = { 0 };
     uint8_t cmd    = REG_MOTION_BURST & 0x7F;
+    uint8_t dummy;  // Dummy bytes to clock data out
+    // uint8_t dummy[12] = {0};  // Dummy bytes to clock data out
 
     spi_transaction_t t = {};
 
@@ -78,41 +80,79 @@ void pmw3360_read_motion(pmw3360_motion_t *motion)
     esp_rom_delay_us(35);
 
     // read 6 bytes back
-    t.length    = 96;
-    t.tx_buffer = NULL;
-    t.rx_buffer = buf;
-    spi_device_transmit(pmw3360_spi, &t);
+//    t.length    = 96;
+//    t.tx_buffer = dummy;
+//    t.rx_buffer = buf;
+//    spi_device_transmit(pmw3360_spi, &t);
+
+    // Read each byte individually (slow but reliable)
+    for (int i = 0; i < 12; i++) {
+        dummy = 0x00;
+        t.length = 8;
+        t.tx_buffer = &dummy;
+        t.rx_buffer = &buf[i];
+        spi_device_polling_transmit(pmw3360_spi, &t);
+    }
 
     cs_high();
-    esp_rom_delay_us(1);
+    esp_rom_delay_us(5);
 
-    // ESP_LOGI(TAG, "RAW: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
-    //     buf[0], buf[1], buf[2], buf[3],
-    //     buf[4], buf[5], buf[6], buf[7],
-    //     buf[8], buf[9], buf[10], buf[11]);
-
-    motion->motion  = buf[0];
+    motion->motion = buf[0];
+    
     // X — low byte first then high byte
-    int16_t xl = buf[1];
+    int16_t xl = buf[3];
     int16_t xh = buf[2];
-    motion->delta_x = (int16_t)((xh << 8) | xl);
+    int16_t raw_x = (int16_t)((xh << 8) | xl);
 
-    // Y — low byte first then high byte  
-    int16_t yl = buf[3];
+    // Y — low byte first then high byte 
+    int16_t yl = buf[5];
     int16_t yh = buf[4];
-    motion->delta_y = (int16_t)((yh << 8) | yl);
+    int16_t raw_y = (int16_t)((yh << 8) | yl);
 
-    ESP_LOGI(TAG, "motion=0x%02X dx=%d dy=%d xl=%02X xh=%02X yl=%02X yh=%02X",
-        motion->motion,
-        motion->delta_x,
-        motion->delta_y,
-        (uint8_t)xl, (uint8_t)xh,
-        (uint8_t)yl, (uint8_t)yh);
-    // static int log_counter = 0;
-    // if (++log_counter >= 50)
-    // {
-    //     log_counter = 0;
-    //     ESP_LOGI(TAG, "Y bytes: L=0x%02X, H=0x%02X", buf[4], buf[5]);
+    // #define PMW_SCALE_DIVISOR 65536  // Divide by 16 to get manageable values
+    // #define PMW_MAX_OUTPUT 127    // Max output value
+    
+    // raw_x = (raw_x * 127)/1024;
+    // raw_y = (raw_y * 127)/1024;
+
+    // ── APPLY DEADZONE ──────────────────────────────────
+    // Ignore tiny movements (adjust threshold as needed)
+    // #define PMW_DEADZONE 2
+    // if (raw_x > -PMW_DEADZONE && raw_x < PMW_DEADZONE) raw_x = 0;
+    // if (raw_y > -PMW_DEADZONE && raw_y < PMW_DEADZONE) raw_y = 0;
+
+    // ── APPLY DECAY ─────────────────────────────────────
+    // Reduce sensitivity to small movements
+    // #define PMW_DECAY 2
+    // if (raw_x != 0) {
+    //     raw_x = raw_x / PMW_DECAY;
+    //     // Make sure we don't lose the last count
+    //     if (raw_x == 0 && (raw_x > 0 || raw_x < 0)) raw_x = (raw_x > 0) ? 1 : -1;
+    // }
+    // if (raw_y != 0) {
+    //     raw_y = raw_y / PMW_DECAY;
+    //     if (raw_y == 0 && (raw_y > 0 || raw_y < 0)) raw_y = (raw_y > 0) ? 1 : -1;
+    // }
+
+    // // ── CLAMP ────────────────────────────────────────────
+    // // Prevent large jumps (adjust max as needed)
+    // #define PMW_MAX_MOVEMENT 127
+    // if (raw_x > PMW_MAX_MOVEMENT) raw_x = PMW_MAX_MOVEMENT;
+    // if (raw_x < -PMW_MAX_MOVEMENT) raw_x = -PMW_MAX_MOVEMENT;
+    // if (raw_y > PMW_MAX_MOVEMENT) raw_y = PMW_MAX_MOVEMENT;
+    // if (raw_y < -PMW_MAX_MOVEMENT) raw_y = -PMW_MAX_MOVEMENT;
+
+    // Store in motion struct
+    motion->delta_x = raw_x;
+    motion->delta_y = raw_y;
+
+    // Debug logging (uncomment if needed)
+    // if (motion->motion & 0x80) {
+        // ESP_LOGI(TAG, "dx=%d, dy=%d", motion->delta_x, motion->delta_y);
+        // ESP_LOGI(TAG, "RAW: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
+        //    buf[0], buf[1], buf[2], buf[3],
+        //    buf[4], buf[5], buf[6], buf[7],
+        //    buf[8], buf[9], buf[10], buf[11]);   
     // }
 }
 
@@ -234,7 +274,7 @@ void pmw3360_init()
     pmw3360_upload_firmware();
 
     // ── Set CPI ──────────────────────────────────────────
-    pmw3360_set_cpi(3200);
+    pmw3360_set_cpi(800);
 
      // ── START BURST MODE ──────────────────────────────────
     pmw3360_start_burst();

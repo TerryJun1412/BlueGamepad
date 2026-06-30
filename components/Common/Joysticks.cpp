@@ -140,7 +140,10 @@ void pmw_joystick_update()
     //     pmw_joystick.current_state_axis_x,
     //     pmw_joystick.current_state_axis_y);
 
-    if (!motion_detected) return;
+    if (!motion_detected){
+        pmw_joystick_recenter();
+        return;
+    }
 
     float dx = (float)acc_x;
     float dy = (float)acc_y;
